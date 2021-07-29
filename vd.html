@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+ <style>
+     *{
+         margin: 0;
+         padding: 0;
+     }
+     .player{
+         width: 500px;
+         height: 360px;
+         margin: 0 auto;
+         background-color: black;
+         position: relative;
+     }
+     .progress{
+         width:275px;
+         height: 10px;
+         position: absolute;
+         border-radius: 3px;
+         background-color: #999;
+         bottom: 15px;
+         left: 52px;
+     }
+     .progress .line{
+         width: 0;
+         height: 100%;
+         background-color: #fff;
+         position: absolute;
+         top: 0px;
+         left: 0px;
+         border-radius: 4px;
+     }
+     .bar{
+         border-radius:50% ;
+         width: 20px;
+         background-color: orange;
+         position: absolute;
+         top: 0px;
+         left: 0px;
+
+     }
+     .controls{
+         width: 500px;
+         height: 40px;
+         position: absolute;
+         bottom: 0px;
+         left: 0px;
+     }
+     .controls button{
+         width: 15px;
+         position: absolute;
+         bottom: 10px;
+         left: 20px;
+     }
+     .times{
+         position: absolute;
+         bottom: 9px;
+         right: 8px;
+         color: #fff;
+     }
+     .voice{
+         width: 18px;
+         height: 15px;
+         background: url(./images/sprite.png) no-repeat -90px -10px orange;
+         position: absolute;
+         top: 15px;
+         right: 144px;
+     }
+     #btn_volume{
+         transform: rotate(-90deg);
+         transform-origin: left bottom;
+         position: absolute;
+         right: -130px;
+         bottom: 13px;
+         display: none;
+     }
+ </style>
+<body>
+    <div class="player">
+     <video src="./video/video.webm" id="myVideo"></video>
+     <div class="controls">
+         <button class="play"> ▶ </button>
+         <button class="pause" style="display: none;"> ||  </button>
+        <div class="progress">
+            <!-- <div class="bar"></div> -->
+            <div class="line"></div>
+        </div>
+         <div class="voice">
+         <input type="range" value="0" max="100"  id="btn_volume" >
+         
+         </div>
+        <div class="times">
+          <span class="current">00:00:00</span>
+          <span class="toTime">00:00:00</span>
+        </div>
+        
+     </div>
+    </div>
+</body>
+<script>
+  //获取视频对象
+  var myVideo=document.querySelector("#myVideo");
+  //播放或暂停
+  var play = document.querySelector(".play");
+  var pause =document.querySelector(".pause");
+  var progress = document.querySelector(".progress");
+  //获取总div的 位置 
+    var player = document.querySelector(".player");
+  
+  play.onclick=function(){
+   play.style.display="none";  
+   pause.style.display="block";
+   myVideo.play();
+  }
+
+  pause.onclick=function(){
+      play.style.display="block";
+      pause.style.display="none";
+      myVideo.pause();
+  }
+ //更新播放进度
+ 
+ myVideo.addEventListener("timeupdate",function(){
+    var pValue=(myVideo.currentTime / myVideo.duration) *100;
+    // $(".line").css("width",pValue+"%");
+    document.querySelector(".line").style.width = pValue+"%";
+    //显示当前播放进度时间
+    document.querySelector(".current").innerText = getTimeBySecond(myVideo.currentTime);
+ });
+
+//当视频元数据加载时
+ myVideo.addEventListener("loadedmetadata",function(){
+     //设置总时长
+    document.querySelector(".toTime").innerText=getTimeBySecond(myVideo.duration)
+ })
+
+//拖动进度
+progress.onclick=function(e){
+     var time = myVideo.duration *(e.offsetX / progress.offsetWidth);
+     myVideo.currentTime=time;
+    
+ };
+
+
+//双击全屏
+ 
+// player.addEventListener('dblclick',function(){
+//     console.log(1);
+//      
+// })
+player.ondblclick = function(){
+   myVideo.requestFullscreen();
+};
+
+
+//音量
+ var voice=document.getElementsByClassName("voice")[0];
+ var btn=document.getElementById("btn_volume");
+  voice.onmouseover = function(){
+    btn.style.display="block";
+    console.log(1)
+    
+
+  }
+  voice.onmouseout=function(){
+      btn.style.display="none";
+  }
+let Timer = null;
+ btn.addEventListener('mousedown',volumev)
+  function volumev(){
+     clearInterval(Timer)
+    //  btn.onmousemove=function(){
+        Timer = setInterval( ( )=> {
+            // console.log(this.value,this.max);
+            myVideo.volume= (this.value /this.max);
+            // console.log(myVideo.volume);
+        },100);
+          
+          
+    //  }
+ }
+ btn.addEventListener('mouseup',function(){
+     clearInterval(Timer)
+ });
+
+
+//将当前秒数转换成时间
+ function getTimeBySecond(second){
+     var hour = parseInt(second / ( 60 * 60));
+     var minute = parseInt( (second /60) %60 );
+     var second = parseInt(second % 60 );
+     return (hour < 10 ? "0" + hour:hour)+":"+ (minute < 10 ? "0" +minute : minute)+":"+(second <10 ? "0" +second : second);
+
+
+ };
+
+
+</script>
+
+<script src="./jquery.js"></script>
+</html>
